@@ -123,9 +123,15 @@
 </div>
 </div>
 <div class="flex flex-col gap-2">
+<h3 class="text-gray-900 dark:text-white text-lg font-bold">Dia de entrenamiento</h3>
+<select class="bg-background-light dark:bg-background-dark border border-gray-200 dark:border-border-dark rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:ring-primary focus:border-primary" id="workout-day-select-main" disabled>
+<option selected="" disabled="" value="">Selecciona un dia</option>
+</select>
+</div>
+<div class="flex flex-col gap-2">
 <h3 class="text-gray-900 dark:text-white text-lg font-bold">Hora de inicio</h3>
 <div class="flex w-full items-stretch h-14 shadow-sm">
-<input class="flex-1 bg-white dark:bg-surface-dark border border-gray-200 dark:border-border-dark text-gray-900 dark:text-white text-lg rounded-l-lg focus:ring-primary focus:border-primary block px-4 placeholder-text-secondary" id="start-time-input" step="1" type="time" value="18:30"/>
+<input class="flex-1 bg-white dark:bg-surface-dark border border-gray-200 dark:border-border-dark text-gray-900 dark:text-white text-lg rounded-l-lg focus:ring-primary focus:border-primary block px-4 placeholder-text-secondary" id="start-time-input" step="1" type="time"/>
 <button class="bg-primary hover:bg-green-400 text-background-dark font-bold px-6 rounded-r-lg transition-colors flex items-center gap-2" id="start-time-button">
 <span class="material-symbols-outlined filled">play_arrow</span>
                     Arrancar
@@ -228,10 +234,6 @@
 </div>
 </div>
 </div>
-<button class="w-full mt-4 py-3 border border-dashed border-gray-300 dark:border-border-dark rounded-lg text-text-secondary hover:text-primary hover:border-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-2 text-sm font-medium" id="add-exercise-button">
-<span class="material-symbols-outlined text-[18px]">add</span>
-                        Agregar Ejercicio
-                    </button>
 </div>
 </details>
 </div>
@@ -269,42 +271,42 @@
 <div class="grid grid-cols-2 gap-4">
 <label class="flex flex-col gap-1">
 <span class="text-xs text-text-secondary uppercase font-bold">Series</span>
-<input class="bg-background-light dark:bg-background-dark border border-gray-200 dark:border-border-dark rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:ring-primary focus:border-primary" type="number" value="4"/>
+<input class="bg-background-light dark:bg-background-dark border border-gray-200 dark:border-border-dark rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:ring-primary focus:border-primary" id="timer-series-input" type="number" value="4"/>
 </label>
 <label class="flex flex-col gap-1">
 <span class="text-xs text-text-secondary uppercase font-bold">Reps</span>
-<input class="bg-background-light dark:bg-background-dark border border-gray-200 dark:border-border-dark rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:ring-primary focus:border-primary" type="number" value="12"/>
+<input class="bg-background-light dark:bg-background-dark border border-gray-200 dark:border-border-dark rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:ring-primary focus:border-primary" id="timer-reps-input" type="number" value="12"/>
 </label>
 <label class="flex flex-col gap-1">
 <span class="text-xs text-text-secondary uppercase font-bold">Prep (s)</span>
-<input class="bg-background-light dark:bg-background-dark border border-gray-200 dark:border-border-dark rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:ring-primary focus:border-primary" type="number" value="5"/>
+<input class="bg-background-light dark:bg-background-dark border border-gray-200 dark:border-border-dark rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:ring-primary focus:border-primary" id="timer-prep-input" type="number" value="5"/>
 </label>
 <label class="flex flex-col gap-1">
 <span class="text-xs text-text-secondary uppercase font-bold">Descanso (s)</span>
-<input class="bg-background-light dark:bg-background-dark border border-gray-200 dark:border-border-dark rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:ring-primary focus:border-primary" type="number" value="60"/>
+<input class="bg-background-light dark:bg-background-dark border border-gray-200 dark:border-border-dark rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:ring-primary focus:border-primary" id="timer-rest-input" type="number" value="60"/>
 </label>
 <label class="flex flex-col gap-1 col-span-2">
 <span class="text-xs text-text-secondary uppercase font-bold">Tiempo Entrenamiento (s)</span>
-<input class="bg-background-light dark:bg-background-dark border border-gray-200 dark:border-border-dark rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:ring-primary focus:border-primary" type="number" value="45"/>
+<input class="bg-background-light dark:bg-background-dark border border-gray-200 dark:border-border-dark rounded-lg px-3 py-2 text-gray-900 dark:text-white focus:ring-primary focus:border-primary" id="timer-work-input" type="number" value="45"/>
 </label>
 </div>
-<div class="relative w-full aspect-square max-h-64 mx-auto rounded-full bg-red-500 flex items-center justify-center shadow-[0_0_30px_rgba(239,68,68,0.3)] border-4 border-white/10 overflow-hidden">
+<div class="relative w-full aspect-square max-h-64 mx-auto rounded-full bg-red-500 flex items-center justify-center shadow-[0_0_30px_rgba(239,68,68,0.3)] border-4 border-white/10 overflow-hidden" id="timer-ring">
 <div class="absolute inset-2 border-2 border-white/20 rounded-full border-dashed animate-[spin_10s_linear_infinite]"></div>
 <div class="flex flex-col items-center z-10 text-white drop-shadow-md">
-<span class="text-sm font-bold uppercase tracking-widest opacity-90 mb-1">Descanso</span>
-<span class="text-6xl font-black tabular-nums tracking-tight">00:45</span>
-<span class="text-xs mt-2 opacity-75">Siguiente: Serie 2/4</span>
+<span class="text-sm font-bold uppercase tracking-widest opacity-90 mb-1" id="timer-phase-label">Descanso</span>
+<span class="text-6xl font-black tabular-nums tracking-tight" id="timer-remaining-time">00:45</span>
+<span class="text-xs mt-2 opacity-75" id="timer-next-label">Siguiente: Serie 2/4</span>
 </div>
 <div class="absolute inset-0 bg-gradient-to-b from-white/10 to-black/10 rounded-full pointer-events-none"></div>
 </div>
 <div class="flex items-center justify-center gap-6 pt-2">
-<button class="size-14 rounded-full bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 flex items-center justify-center hover:bg-yellow-500 hover:text-black transition-all">
+<button class="size-14 rounded-full bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 flex items-center justify-center hover:bg-yellow-500 hover:text-black transition-all" id="timer-pause-button">
 <span class="material-symbols-outlined text-3xl">pause</span>
 </button>
-<button class="size-20 rounded-full bg-primary text-background-dark flex items-center justify-center shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
+<button class="size-20 rounded-full bg-primary text-background-dark flex items-center justify-center shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all" id="timer-play-button">
 <span class="material-symbols-outlined text-5xl filled">play_arrow</span>
 </button>
-<button class="size-14 rounded-full bg-red-500/20 text-red-500 border border-red-500/50 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+<button class="size-14 rounded-full bg-red-500/20 text-red-500 border border-red-500/50 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all" id="timer-stop-button">
 <span class="material-symbols-outlined text-3xl">stop</span>
 </button>
 </div>
@@ -312,6 +314,15 @@
 </details>
 <div class="h-10"></div> 
 </main>
+<template id="exercise-category-template">
+<details class="group bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-border-dark overflow-hidden">
+<summary class="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors select-none">
+<span class="text-gray-900 dark:text-white font-bold text-base" data-category-name>Categoria</span>
+<span class="material-symbols-outlined text-text-secondary transition-transform duration-200 group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-4 pt-0 border-t border-gray-200 dark:border-border-dark/50 flex flex-col gap-6" data-category-body></div>
+</details>
+</template>
 <template id="exercise-template">
 <div class="bg-gray-50 dark:bg-white/5 rounded-lg p-3 border border-gray-200 dark:border-border-dark">
 <div class="flex justify-between items-center mb-3">
@@ -332,42 +343,60 @@
       var overlay = document.getElementById("file-loader-overlay");
       var fileInput = document.getElementById("workout-file-input");
       var daySelect = document.getElementById("workout-day-select");
+      var daySelectMain = document.getElementById("workout-day-select-main");
       var errorText = document.getElementById("workout-file-error");
       var exerciseList = document.getElementById("exercise-list");
+      var categoryTemplate = document.getElementById("exercise-category-template");
       var exerciseTemplate = document.getElementById("exercise-template");
 
-      if (!overlay || !fileInput || !daySelect || !errorText || !exerciseList || !exerciseTemplate) {
+      if (!overlay || !fileInput || !daySelect || !daySelectMain || !errorText || !exerciseList || !categoryTemplate || !exerciseTemplate) {
         return;
       }
 
       var currentWorkbook = null;
       var repsColumns = [3, 4, 5, 6, 7, 8];
 
+      function setOverlayVisible(isVisible) {
+        overlay.style.display = isVisible ? "flex" : "none";
+      }
+
       function showError(message) {
         errorText.textContent = message || "";
         errorText.hidden = !message;
       }
 
-      function resetDaySelect() {
-        daySelect.innerHTML = "";
+      function resetDaySelect(select) {
+        select.innerHTML = "";
         var placeholder = document.createElement("option");
         placeholder.value = "";
         placeholder.textContent = "Selecciona un dia";
         placeholder.disabled = true;
         placeholder.selected = true;
-        daySelect.appendChild(placeholder);
-        daySelect.disabled = true;
+        select.appendChild(placeholder);
+        select.disabled = true;
       }
 
-      function populateDaySelect(sheetNames) {
-        resetDaySelect();
+      function resetDaySelects() {
+        resetDaySelect(daySelect);
+        resetDaySelect(daySelectMain);
+      }
+
+      function populateDaySelects(sheetNames) {
+        resetDaySelects();
         sheetNames.forEach(function (sheetName) {
           var option = document.createElement("option");
           option.value = sheetName;
           option.textContent = sheetName;
           daySelect.appendChild(option);
+
+          var optionMain = document.createElement("option");
+          optionMain.value = sheetName;
+          optionMain.textContent = sheetName;
+          daySelectMain.appendChild(optionMain);
         });
-        daySelect.disabled = sheetNames.length === 0;
+        var shouldDisable = sheetNames.length === 0;
+        daySelect.disabled = shouldDisable;
+        daySelectMain.disabled = shouldDisable;
       }
 
       function buildRepItem(value) {
@@ -389,28 +418,39 @@
         return input;
       }
 
-      function renderExercises(exercises) {
+      function renderExercises(categories) {
         exerciseList.innerHTML = "";
 
-        exercises.forEach(function (exercise) {
-          var card = exerciseTemplate.content.firstElementChild.cloneNode(true);
-          var name = exercise && exercise.nombre ? exercise.nombre : "Ejercicio";
-          var series = Array.isArray(exercise && exercise.series) ? exercise.series : [];
+        categories.forEach(function (category) {
+          var categoryCard = categoryTemplate.content.firstElementChild.cloneNode(true);
+          var categoryName = category && category.categoria ? category.categoria : "General";
+          var categoryBody = categoryCard.querySelector("[data-category-body]");
 
-          card.querySelector("[data-exercise-name]").textContent = name;
-          card.querySelector("[data-series-count]").textContent = String(series.length) + " Series";
+          categoryCard.querySelector("[data-category-name]").textContent = categoryName;
 
-          var repsRow = card.querySelector("[data-reps-row]");
-          var weightsRow = card.querySelector("[data-weights-row]");
+          var exercises = Array.isArray(category && category.ejercicios) ? category.ejercicios : [];
+          exercises.forEach(function (exercise) {
+            var card = exerciseTemplate.content.firstElementChild.cloneNode(true);
+            var name = exercise && exercise.nombre ? exercise.nombre : "Ejercicio";
+            var series = Array.isArray(exercise && exercise.series) ? exercise.series : [];
 
-          series.forEach(function (serie) {
-            var repsValue = serie && serie.reps != null ? String(serie.reps) : "";
-            var weightValue = serie && serie.peso != null ? String(serie.peso) : "";
-            repsRow.appendChild(buildRepItem(repsValue));
-            weightsRow.appendChild(buildWeightInput(weightValue));
+            card.querySelector("[data-exercise-name]").textContent = name;
+            card.querySelector("[data-series-count]").textContent = String(series.length) + " Series";
+
+            var repsRow = card.querySelector("[data-reps-row]");
+            var weightsRow = card.querySelector("[data-weights-row]");
+
+            series.forEach(function (serie) {
+              var repsValue = serie && serie.reps != null ? String(serie.reps) : "";
+              var weightValue = serie && serie.peso != null ? String(serie.peso) : "";
+              repsRow.appendChild(buildRepItem(repsValue));
+              weightsRow.appendChild(buildWeightInput(weightValue));
+            });
+
+            categoryBody.appendChild(card);
           });
 
-          exerciseList.appendChild(card);
+          exerciseList.appendChild(categoryCard);
         });
       }
 
@@ -424,13 +464,19 @@
       }
 
       function isHeaderRow(row) {
+        var categoryValue = normalizeHeader(row[0]);
         var exerciseValue = normalizeHeader(row[1]);
         var seriesValue = normalizeHeader(row[2]);
         return (
+          categoryValue === "categoria" ||
+          categoryValue === "grupo" ||
+          categoryValue === "grupodetrabajo" ||
+          categoryValue === "musculo" ||
+          categoryValue === "musculos" ||
           exerciseValue === "ejercicio" ||
           exerciseValue === "exercise" ||
           seriesValue === "series" ||
-          seriesValue === "series"
+          seriesValue === "serie"
         );
       }
 
@@ -462,7 +508,7 @@
           return null;
         }
 
-        var exercises = [];
+        var categoriesMap = new Map();
         var hasData = false;
 
         rows.forEach(function (row, index) {
@@ -470,6 +516,7 @@
             return;
           }
 
+          var categoryName = String(row[0] || "").trim();
           var name = String(row[1] || "").trim();
           var seriesCountRaw = row[2];
           var seriesCount = parseInt(seriesCountRaw, 10);
@@ -487,6 +534,10 @@
 
           if (!name && seriesCount === 0 && !hasRepsData) {
             return;
+          }
+
+          if (!categoryName) {
+            categoryName = "General";
           }
 
           if (!name) {
@@ -513,7 +564,10 @@
             return;
           }
 
-          exercises.push({ nombre: name, series: series });
+          if (!categoriesMap.has(categoryName)) {
+            categoriesMap.set(categoryName, []);
+          }
+          categoriesMap.get(categoryName).push({ nombre: name, series: series });
           hasData = true;
         });
 
@@ -522,11 +576,21 @@
           return null;
         }
 
-        return exercises;
+        return Array.from(categoriesMap, function (entry) {
+          return { categoria: entry[0], ejercicios: entry[1] };
+        });
       }
 
-      function handleDaySelection() {
-        var selectedSheet = daySelect.value;
+      function syncDaySelects(selectedSheet) {
+        if (daySelect.value !== selectedSheet) {
+          daySelect.value = selectedSheet;
+        }
+        if (daySelectMain.value !== selectedSheet) {
+          daySelectMain.value = selectedSheet;
+        }
+      }
+
+      function handleDaySelection(selectedSheet) {
         if (!selectedSheet) {
           return;
         }
@@ -538,10 +602,17 @@
 
         renderExercises(exercises);
         showError("");
-        overlay.hidden = true;
+        setOverlayVisible(false);
+        syncDaySelects(selectedSheet);
       }
 
-      daySelect.addEventListener("change", handleDaySelection);
+      daySelect.addEventListener("change", function () {
+        handleDaySelection(daySelect.value);
+      });
+
+      daySelectMain.addEventListener("change", function () {
+        handleDaySelection(daySelectMain.value);
+      });
 
       fileInput.addEventListener("change", function (event) {
         var file = event.target.files && event.target.files[0];
@@ -550,9 +621,9 @@
         }
 
         showError("");
-        resetDaySelect();
+        resetDaySelects();
         currentWorkbook = null;
-        overlay.hidden = false;
+        setOverlayVisible(true);
 
         if (!/\.xlsx$/i.test(file.name)) {
           showError("El archivo debe ser .xlsx.");
@@ -569,10 +640,9 @@
               return;
             }
 
-            populateDaySelect(sheetNames);
+            populateDaySelects(sheetNames);
             if (sheetNames.length === 1) {
-              daySelect.value = sheetNames[0];
-              handleDaySelection();
+              handleDaySelection(sheetNames[0]);
             }
           } catch (error) {
             showError("No se pudo leer el archivo. Verifica que sea .xlsx valido.");
@@ -581,7 +651,7 @@
         reader.readAsArrayBuffer(file);
       });
 
-      resetDaySelect();
+      resetDaySelects();
     }
 
     function initCyclePhaseToggle() {
@@ -618,6 +688,334 @@
       });
     }
 
+    function initWorkoutTimer() {
+      var seriesInput = document.getElementById("timer-series-input");
+      var repsInput = document.getElementById("timer-reps-input");
+      var prepInput = document.getElementById("timer-prep-input");
+      var restInput = document.getElementById("timer-rest-input");
+      var workInput = document.getElementById("timer-work-input");
+      var phaseLabel = document.getElementById("timer-phase-label");
+      var timeLabel = document.getElementById("timer-remaining-time");
+      var nextLabel = document.getElementById("timer-next-label");
+      var timerRing = document.getElementById("timer-ring");
+      var pauseButton = document.getElementById("timer-pause-button");
+      var playButton = document.getElementById("timer-play-button");
+      var stopButton = document.getElementById("timer-stop-button");
+
+      if (!seriesInput || !repsInput || !prepInput || !restInput || !workInput || !phaseLabel || !timeLabel || !nextLabel || !timerRing || !pauseButton || !playButton || !stopButton) {
+        return;
+      }
+
+      var intervalId = null;
+      var timerState = null;
+      var timerStatus = "idle";
+
+      function setButtonVisibility(status) {
+        timerStatus = status;
+        if (status === "running") {
+          playButton.style.display = "none";
+          pauseButton.style.display = "";
+          stopButton.style.display = "";
+          return;
+        }
+        if (status === "paused") {
+          playButton.style.display = "";
+          pauseButton.style.display = "none";
+          stopButton.style.display = "";
+          return;
+        }
+        playButton.style.display = "";
+        pauseButton.style.display = "none";
+        stopButton.style.display = "none";
+      }
+
+      function clampNumber(value, fallback) {
+        var parsed = parseInt(value, 10);
+        if (Number.isNaN(parsed) || parsed < 0) {
+          return fallback;
+        }
+        return parsed;
+      }
+
+      function getSettings() {
+        var totalSeries = clampNumber(seriesInput.value, 1);
+        if (totalSeries === 0) {
+          totalSeries = 1;
+        }
+        var repsPerSeries = clampNumber(repsInput.value, 1);
+        if (repsPerSeries === 0) {
+          repsPerSeries = 1;
+        }
+        return {
+          totalSeries: totalSeries,
+          repsPerSeries: repsPerSeries,
+          prepSeconds: clampNumber(prepInput.value, 0),
+          restSeconds: clampNumber(restInput.value, 0),
+          workSeconds: clampNumber(workInput.value, 0)
+        };
+      }
+
+      function formatTime(seconds) {
+        var safeSeconds = Math.max(0, seconds || 0);
+        var minutes = Math.floor(safeSeconds / 60);
+        var remaining = safeSeconds % 60;
+        return String(minutes).padStart(2, "0") + ":" + String(remaining).padStart(2, "0");
+      }
+
+      function getProgressLabel(state) {
+        if (!state) {
+          return "Repeticion 0/0 · Serie 0/0";
+        }
+        return (
+          "Repeticion " +
+          state.repIndex +
+          "/" +
+          state.repsPerSeries +
+          " · Serie " +
+          state.seriesIndex +
+          "/" +
+          state.totalSeries
+        );
+      }
+
+      function getNextLabel(state) {
+        if (!state) {
+          return "Repeticion 0/0 · Serie 0/0";
+        }
+        if (state.phase === "Descanso") {
+          var nextSeries = state.seriesIndex;
+          var nextRep = state.repIndex;
+          if (state.repIndex < state.repsPerSeries) {
+            nextRep = state.repIndex + 1;
+          } else if (state.seriesIndex < state.totalSeries) {
+            nextSeries = state.seriesIndex + 1;
+            nextRep = 1;
+          }
+          return (
+            "Siguiente: Repeticion " +
+            nextRep +
+            "/" +
+            state.repsPerSeries +
+            " · Serie " +
+            nextSeries +
+            "/" +
+            state.totalSeries
+          );
+        }
+        return getProgressLabel(state);
+      }
+
+      function updateDisplay(state) {
+        if (!state) {
+          return;
+        }
+        phaseLabel.textContent = state.phase;
+        timeLabel.textContent = formatTime(state.remainingSeconds);
+        nextLabel.textContent = getNextLabel(state);
+        timerRing.classList.remove("bg-green-500", "bg-yellow-500", "bg-red-500");
+        if (state.phase === "Trabajo") {
+          timerRing.classList.add("bg-green-500");
+        } else if (state.phase === "Preparacion") {
+          timerRing.classList.add("bg-yellow-500");
+        } else {
+          timerRing.classList.add("bg-red-500");
+        }
+      }
+
+      function setDisplayToSettings() {
+        var settings = getSettings();
+        var initialPhase = settings.prepSeconds > 0 ? "Preparacion" : "Trabajo";
+        var initialSeconds = settings.prepSeconds > 0 ? settings.prepSeconds : settings.workSeconds;
+        if (initialSeconds <= 0) {
+          initialPhase = "Descanso";
+          initialSeconds = settings.restSeconds;
+        }
+        var previewState = {
+          phase: initialPhase,
+          remainingSeconds: initialSeconds,
+          seriesIndex: 1,
+          totalSeries: settings.totalSeries,
+          repIndex: 1,
+          repsPerSeries: settings.repsPerSeries
+        };
+        updateDisplay(previewState);
+      }
+
+      function clearTimerInterval() {
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+      }
+
+      function stopTimer(resetDisplay) {
+        clearTimerInterval();
+        timerState = null;
+        if (resetDisplay) {
+          setDisplayToSettings();
+        }
+        setButtonVisibility("idle");
+      }
+
+      function finishTimer() {
+        clearTimerInterval();
+        if (timerState) {
+          phaseLabel.textContent = "Completado";
+          timeLabel.textContent = "00:00";
+          nextLabel.textContent = getProgressLabel({
+            seriesIndex: timerState.totalSeries,
+            totalSeries: timerState.totalSeries,
+            repIndex: timerState.repsPerSeries,
+            repsPerSeries: timerState.repsPerSeries
+          });
+        }
+        timerState = null;
+        setButtonVisibility("idle");
+      }
+
+      function advancePhase(state) {
+        var settings = state.settings;
+        if (settings.prepSeconds <= 0 && settings.workSeconds <= 0 && settings.restSeconds <= 0) {
+          finishTimer();
+          return;
+        }
+        if (state.phase === "Preparacion") {
+          state.phase = "Trabajo";
+          state.remainingSeconds = settings.workSeconds;
+          if (state.remainingSeconds <= 0) {
+            advancePhase(state);
+          }
+          return;
+        }
+
+        if (state.phase === "Trabajo") {
+          if (state.repIndex < settings.repsPerSeries) {
+            if (settings.restSeconds > 0) {
+              state.phase = "Descanso";
+              state.remainingSeconds = settings.restSeconds;
+              return;
+            }
+            state.repIndex += 1;
+            state.phase = "Trabajo";
+            state.remainingSeconds = settings.workSeconds;
+            if (state.remainingSeconds <= 0) {
+              advancePhase(state);
+            }
+            return;
+          }
+          if (state.seriesIndex < settings.totalSeries) {
+            state.seriesIndex += 1;
+            state.repIndex = 1;
+            state.phase = settings.prepSeconds > 0 ? "Preparacion" : "Trabajo";
+            state.remainingSeconds = settings.prepSeconds > 0 ? settings.prepSeconds : settings.workSeconds;
+            if (state.remainingSeconds <= 0) {
+              advancePhase(state);
+            }
+            return;
+          }
+          finishTimer();
+          return;
+        }
+
+        if (state.phase === "Descanso") {
+          if (state.repIndex < settings.repsPerSeries) {
+            state.repIndex += 1;
+            state.phase = "Trabajo";
+            state.remainingSeconds = settings.workSeconds;
+            if (state.remainingSeconds <= 0) {
+              advancePhase(state);
+            }
+            return;
+          }
+          if (state.seriesIndex < settings.totalSeries) {
+            state.seriesIndex += 1;
+            state.repIndex = 1;
+            state.phase = settings.prepSeconds > 0 ? "Preparacion" : "Trabajo";
+            state.remainingSeconds = settings.prepSeconds > 0 ? settings.prepSeconds : settings.workSeconds;
+            if (state.remainingSeconds <= 0) {
+              advancePhase(state);
+            }
+            return;
+          }
+          finishTimer();
+        }
+      }
+
+      function tick() {
+        if (!timerState) {
+          return;
+        }
+
+        if (timerState.remainingSeconds > 0) {
+          timerState.remainingSeconds -= 1;
+          updateDisplay(timerState);
+          return;
+        }
+
+        advancePhase(timerState);
+        if (timerState) {
+          updateDisplay(timerState);
+          if (timerState.remainingSeconds === 0) {
+            tick();
+          }
+        }
+      }
+
+      function startTimer() {
+        var settings = getSettings();
+        var initialPhase = settings.prepSeconds > 0 ? "Preparacion" : "Trabajo";
+        var initialSeconds = settings.prepSeconds > 0 ? settings.prepSeconds : settings.workSeconds;
+        if (initialSeconds <= 0) {
+          initialPhase = "Descanso";
+          initialSeconds = settings.restSeconds;
+        }
+
+        if (settings.prepSeconds <= 0 && settings.workSeconds <= 0 && settings.restSeconds <= 0) {
+          finishTimer();
+          return;
+        }
+
+        timerState = {
+          phase: initialPhase,
+          remainingSeconds: initialSeconds,
+          seriesIndex: 1,
+          totalSeries: settings.totalSeries,
+          repIndex: 1,
+          repsPerSeries: settings.repsPerSeries,
+          settings: settings
+        };
+
+        updateDisplay(timerState);
+        clearTimerInterval();
+        intervalId = setInterval(tick, 1000);
+        setButtonVisibility("running");
+      }
+
+      pauseButton.addEventListener("click", function () {
+        clearTimerInterval();
+        setButtonVisibility("paused");
+      });
+
+      playButton.addEventListener("click", function () {
+        if (intervalId) {
+          return;
+        }
+        if (timerState) {
+          intervalId = setInterval(tick, 1000);
+          setButtonVisibility("running");
+          return;
+        }
+        startTimer();
+      });
+
+      stopButton.addEventListener("click", function () {
+        stopTimer(true);
+      });
+
+      setDisplayToSettings();
+      setButtonVisibility("idle");
+    }
+
     function formatCurrentTime() {
       var now = new Date();
       var hours = String(now.getHours()).padStart(2, "0");
@@ -647,6 +1045,7 @@
 
     initCyclePhaseToggle();
     initTimerSection();
+    initWorkoutTimer();
     initTimeButtons();
     initWorkoutFileLoader();
   })();
