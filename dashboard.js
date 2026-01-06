@@ -2,12 +2,21 @@
     function initWorkoutFileLoader() {
       var overlay = document.getElementById("file-loader-overlay");
       var fileInput = document.getElementById("workout-file-input");
+      var fileButton = document.getElementById("workout-file-button");
+      var fileButtonLabel = document.getElementById("workout-file-button-label");
       var daySelect = document.getElementById("workout-day-select");
       var daySelectMain = document.getElementById("workout-day-select-main");
       var errorText = document.getElementById("workout-file-error");
       var exerciseList = document.getElementById("exercise-list");
       var categoryTemplate = document.getElementById("exercise-category-template");
       var exerciseTemplate = document.getElementById("exercise-template");
+      var openLoaderButton = document.getElementById("open-file-loader-button");
+      var timerStartButton = document.getElementById("timer-start-button");
+      var timerSection = document.getElementById("timer-section");
+      var timerCloseButton = document.getElementById("timer-close-button");
+      var bodyElement = document.body;
+      var defaultFileButtonText = "Cargar Archivo Excel";
+      var loadedFileButtonText = "Rutina Cargada";
 
       if (!overlay || !fileInput || !daySelect || !daySelectMain || !errorText || !exerciseList || !categoryTemplate || !exerciseTemplate) {
         return;
@@ -18,12 +27,37 @@
       var repsColumns = [3, 4, 5, 6, 7, 8];
 
       function setOverlayVisible(isVisible) {
-        overlay.style.display = isVisible ? "flex" : "none";
+        overlay.style.display = isVisible ? "block" : "none";
+      }
+
+      function setTimerOnlyMode(isEnabled) {
+        if (bodyElement) {
+          bodyElement.classList.toggle("timer-only-mode", isEnabled);
+        }
+        if (timerSection && isEnabled) {
+          timerSection.setAttribute("open", "");
+        }
+        if (isEnabled) {
+          setOverlayVisible(true);
+        }
       }
 
       function showError(message) {
         errorText.textContent = message || "";
         errorText.hidden = !message;
+      }
+
+      function setFileButtonText(text) {
+        if (fileButtonLabel) {
+          fileButtonLabel.textContent = text;
+        }
+      }
+
+      function showThinkingState() {
+        if (!exerciseList) {
+          return;
+        }
+        exerciseList.innerHTML = "<div class=\"text-sm font-semibold text-gray-600 dark:text-text-secondary\">Pensando...</div>";
       }
 
       function resetDaySelect(select) {
@@ -404,16 +438,25 @@
           return;
         }
 
-        var exercises = parseExercisesFromWorkbook(selectedSheet);
-        if (!exercises) {
-          return;
-        }
-
-        exercises = applyHistoryToExercises(exercises);
-        renderExercises(exercises);
         showError("");
-        setOverlayVisible(false);
-        syncDaySelects(selectedSheet);
+        showThinkingState();
+
+        window.setTimeout(function () {
+          var exercises = parseExercisesFromWorkbook(selectedSheet);
+          if (!exercises) {
+            if (exerciseList) {
+              exerciseList.innerHTML = "";
+            }
+            return;
+          }
+
+          exercises = applyHistoryToExercises(exercises);
+          renderExercises(exercises);
+          showError("");
+          setTimerOnlyMode(false);
+          setOverlayVisible(false);
+          syncDaySelects(selectedSheet);
+        }, 0);
       }
 
       daySelect.addEventListener("change", function () {
@@ -431,6 +474,7 @@
         }
 
         showError("");
+        setFileButtonText(defaultFileButtonText);
         resetDaySelects();
         currentWorkbook = null;
         historyData = null;
@@ -457,6 +501,9 @@
             });
 
             populateDaySelects(daySheetNames);
+            if (daySheetNames.length) {
+              setFileButtonText(loadedFileButtonText);
+            }
             if (daySheetNames.length === 1) {
               handleDaySelection(daySheetNames[0]);
             }
@@ -466,6 +513,37 @@
         };
         reader.readAsArrayBuffer(file);
       });
+
+      if (fileButton && fileInput) {
+        fileButton.addEventListener("click", function () {
+          showError("");
+          fileInput.click();
+        });
+      }
+
+      if (timerStartButton) {
+        timerStartButton.addEventListener("click", function () {
+          showError("");
+          setTimerOnlyMode(true);
+          if (timerSection && timerSection.scrollIntoView) {
+            timerSection.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      }
+
+      if (openLoaderButton) {
+        openLoaderButton.addEventListener("click", function () {
+          showError("");
+          setTimerOnlyMode(false);
+          setOverlayVisible(true);
+        });
+      }
+
+      if (timerCloseButton) {
+        timerCloseButton.addEventListener("click", function () {
+          setTimerOnlyMode(false);
+        });
+      }
 
       resetDaySelects();
     }
