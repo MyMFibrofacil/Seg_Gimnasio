@@ -732,6 +732,88 @@
       var intervalId = null;
       var timerState = null;
       var timerStatus = "idle";
+      var audioContext = null;
+
+      function getAudioContext() {
+        if (audioContext) {
+          return audioContext;
+        }
+        var AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextConstructor) {
+          return null;
+        }
+        audioContext = new AudioContextConstructor();
+        return audioContext;
+      }
+
+      function unlockAudioContext() {
+        var context = getAudioContext();
+        if (!context || context.state !== "suspended") {
+          return;
+        }
+        context.resume().catch(function () {});
+      }
+
+      function scheduleBeep(startTime, frequency, durationMs, volume, waveType) {
+        var context = getAudioContext();
+        if (!context) {
+          return;
+        }
+        var oscillator = context.createOscillator();
+        var gainNode = context.createGain();
+        oscillator.type = waveType || "sine";
+        oscillator.frequency.setValueAtTime(frequency, startTime);
+        gainNode.gain.setValueAtTime(0.0001, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(volume, startTime + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + (durationMs / 1000));
+        oscillator.connect(gainNode);
+        gainNode.connect(context.destination);
+        oscillator.start(startTime);
+        oscillator.stop(startTime + (durationMs / 1000) + 0.05);
+      }
+
+      function playBeep(frequency, durationMs, volume, waveType) {
+        var context = getAudioContext();
+        if (!context) {
+          return;
+        }
+        unlockAudioContext();
+        scheduleBeep(context.currentTime + 0.01, frequency, durationMs, volume, waveType);
+      }
+
+      function playBuzzer(frequency, durationMs, volume) {
+        playBeep(frequency, durationMs, volume, "square");
+      }
+
+      function playPhaseSound(phase) {
+        if (phase === "Trabajo") {
+          playBuzzer(920, 320, 0.22);
+          return;
+        }
+        if (phase === "Descanso") {
+          playBuzzer(520, 360, 0.24);
+        }
+      }
+
+      function playFinishSound() {
+        var context = getAudioContext();
+        if (!context) {
+          return;
+        }
+        unlockAudioContext();
+        var startTime = context.currentTime + 0.02;
+        scheduleBeep(startTime, 880, 180, 0.06);
+        scheduleBeep(startTime + 0.24, 880, 180, 0.06);
+        scheduleBeep(startTime + 0.48, 880, 180, 0.06);
+      }
+
+      function playStartSound() {
+        playBeep(740, 140, 0.05);
+      }
+
+      function playPauseSound() {
+        playBeep(320, 180, 0.05);
+      }
 
       function setButtonVisibility(status) {
         timerStatus = status;
@@ -871,6 +953,14 @@
         }
       }
 
+      function setPhase(state, phase, seconds) {
+        state.phase = phase;
+        state.remainingSeconds = seconds;
+        if (seconds > 0) {
+          playPhaseSound(phase);
+        }
+      }
+
       function stopTimer(resetDisplay) {
         clearTimerInterval();
         timerState = null;
@@ -882,6 +972,9 @@
 
       function finishTimer() {
         clearTimerInterval();
+        if (timerStatus !== "idle") {
+          playFinishSound();
+        }
         if (timerState) {
           phaseLabel.textContent = "Completado";
           timeLabel.textContent = "00:00";
@@ -903,8 +996,7 @@
           return;
         }
         if (state.phase === "Preparacion") {
-          state.phase = "Trabajo";
-          state.remainingSeconds = settings.workSeconds;
+          setPhase(state, "Trabajo", settings.workSeconds);
           if (state.remainingSeconds <= 0) {
             advancePhase(state);
           }
@@ -914,13 +1006,11 @@
         if (state.phase === "Trabajo") {
           if (state.repIndex < settings.repsPerSeries) {
             if (settings.restSeconds > 0) {
-              state.phase = "Descanso";
-              state.remainingSeconds = settings.restSeconds;
+              setPhase(state, "Descanso", settings.restSeconds);
               return;
             }
             state.repIndex += 1;
-            state.phase = "Trabajo";
-            state.remainingSeconds = settings.workSeconds;
+            setPhase(state, "Trabajo", settings.workSeconds);
             if (state.remainingSeconds <= 0) {
               advancePhase(state);
             }
@@ -929,8 +1019,7 @@
           if (state.seriesIndex < settings.totalSeries) {
             state.seriesIndex += 1;
             state.repIndex = 1;
-            state.phase = settings.prepSeconds > 0 ? "Preparacion" : "Trabajo";
-            state.remainingSeconds = settings.prepSeconds > 0 ? settings.prepSeconds : settings.workSeconds;
+            setPhase(state, settings.prepSeconds > 0 ? "Preparacion" : "Trabajo", settings.prepSeconds > 0 ? settings.prepSeconds : settings.workSeconds);
             if (state.remainingSeconds <= 0) {
               advancePhase(state);
             }
@@ -943,8 +1032,7 @@
         if (state.phase === "Descanso") {
           if (state.repIndex < settings.repsPerSeries) {
             state.repIndex += 1;
-            state.phase = "Trabajo";
-            state.remainingSeconds = settings.workSeconds;
+            setPhase(state, "Trabajo", settings.workSeconds);
             if (state.remainingSeconds <= 0) {
               advancePhase(state);
             }
@@ -953,8 +1041,7 @@
           if (state.seriesIndex < settings.totalSeries) {
             state.seriesIndex += 1;
             state.repIndex = 1;
-            state.phase = settings.prepSeconds > 0 ? "Preparacion" : "Trabajo";
-            state.remainingSeconds = settings.prepSeconds > 0 ? settings.prepSeconds : settings.workSeconds;
+            setPhase(state, settings.prepSeconds > 0 ? "Preparacion" : "Trabajo", settings.prepSeconds > 0 ? settings.prepSeconds : settings.workSeconds);
             if (state.remainingSeconds <= 0) {
               advancePhase(state);
             }
@@ -1015,14 +1102,19 @@
       }
 
       pauseButton.addEventListener("click", function () {
+        if (timerStatus === "running") {
+          playPauseSound();
+        }
         clearTimerInterval();
         setButtonVisibility("paused");
       });
 
       playButton.addEventListener("click", function () {
+        unlockAudioContext();
         if (intervalId) {
           return;
         }
+        playStartSound();
         if (timerState) {
           intervalId = setInterval(tick, 1000);
           setButtonVisibility("running");
