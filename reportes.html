@@ -1,0 +1,266 @@
+﻿<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reportes de Entrenamiento</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;family=Noto+Sans:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#30e87a",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#112117",
+                        "card-dark": "#1c2a23", // Slightly lighter than bg-dark for contrast
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for clean UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased selection:bg-primary selection:text-background-dark">
+<div class="relative flex h-full min-h-screen w-full max-w-md mx-auto flex-col overflow-x-hidden pb-24">
+<!-- TopAppBar -->
+<div class="sticky top-0 z-50 flex items-center bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm p-4 pb-2 justify-between border-b border-gray-200 dark:border-white/5">
+<button class="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 24px;">arrow_back_ios_new</span>
+</button>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">Reportes</h2>
+<button class="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 24px;">more_horiz</span>
+</button>
+</div>
+<!-- File Loader -->
+<div class="px-4 pt-4">
+<input id="reportes-file-input" class="hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+<button class="w-full flex items-center justify-between p-4 rounded-2xl bg-primary shadow-[0_4px_20px_rgba(48,232,122,0.25)] hover:shadow-[0_4px_25px_rgba(48,232,122,0.35)] transition-all active:scale-[0.98]" id="reportes-file-button" type="button">
+<span class="text-sm font-bold text-background-dark">Cargar Archivo Excel</span>
+<span class="material-symbols-outlined text-background-dark">upload_file</span>
+</button>
+<div class="text-xs text-gray-500 dark:text-gray-400 mt-2" id="reportes-file-status"></div>
+<div class="text-sm text-red-500 mt-2" id="reportes-file-error" hidden=""></div>
+</div>
+<div class="px-4 pt-2 text-sm text-gray-500 dark:text-gray-400" id="reportes-empty-state" hidden="">
+No hay archivo cargado. Carga un Excel para ver reportes.
+</div>
+<!-- Exercise Selector (Dropdown) -->
+<div class="px-4 pt-4">
+<label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2" for="reportes-exercise-select">
+Ejercicio
+</label>
+<div class="relative">
+<select class="w-full appearance-none rounded-2xl border-0 bg-white dark:bg-card-dark py-3 pl-4 pr-10 text-sm font-semibold text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-white/10 focus:ring-2 focus:ring-primary transition-all cursor-pointer" id="reportes-exercise-select" disabled>
+<option selected="" disabled="" value="">Selecciona un ejercicio</option>
+</select>
+</div>
+</div>
+<!-- Main Content Area -->
+<div class="flex flex-col gap-6 px-4 pt-4">
+<!-- Stats Grid -->
+<div class="grid grid-cols-3 gap-3">
+<!-- Card 1 -->
+<div class="flex flex-col justify-between gap-2 rounded-xl p-4 bg-white dark:bg-card-dark border border-gray-100 dark:border-white/5 shadow-sm">
+<div class="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+<span class="material-symbols-outlined text-[16px]">fitness_center</span>
+<p class="text-xs font-medium uppercase tracking-wider">Sesiones</p>
+</div>
+<div>
+<p class="text-xl md:text-2xl font-bold tracking-tight" id="stat-sessions">0</p>
+<p class="text-gray-400 text-xs font-medium mt-1" id="stat-sessions-subtitle">Total</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="flex flex-col justify-between gap-2 rounded-xl p-4 bg-white dark:bg-card-dark border border-gray-100 dark:border-white/5 shadow-sm">
+<div class="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+<span class="material-symbols-outlined text-[16px]">monitoring</span>
+<p class="text-xs font-medium uppercase tracking-wider">Mejoria</p>
+</div>
+<div>
+<p class="text-xl md:text-2xl font-bold tracking-tight" id="stat-series">0</p>
+<p class="text-gray-400 text-xs font-medium mt-1" id="stat-series-subtitle">Total</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="flex flex-col justify-between gap-2 rounded-xl p-4 bg-white dark:bg-card-dark border border-gray-100 dark:border-white/5 shadow-sm">
+<div class="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+<span class="material-symbols-outlined text-[16px]">weight</span>
+<p class="text-xs font-medium uppercase tracking-wider">Volumen</p>
+</div>
+<div>
+<p class="text-xl md:text-2xl font-bold tracking-tight"><span id="stat-volume">--</span></p>
+<p class="text-gray-400 text-xs font-medium mt-1" id="stat-volume-subtitle">Total</p>
+</div>
+</div>
+</div>
+<!-- Chart Section -->
+<div class="flex flex-col gap-4 rounded-2xl bg-white dark:bg-card-dark border border-gray-100 dark:border-white/5 p-5 shadow-sm">
+<div class="flex items-start justify-between">
+<div>
+<p class="text-gray-500 dark:text-gray-400 text-sm font-medium" id="reportes-chart-title">Maximo peso</p>
+<div class="flex items-end gap-2 mt-1">
+<h3 class="text-3xl font-bold tracking-tight"><span id="reportes-chart-value">0</span> kg</h3>
+<span class="text-primary text-sm font-bold mb-1.5 bg-primary/10 px-2 py-0.5 rounded text-primary" id="reportes-chart-subtitle">Sin datos</span>
+</div>
+<p class="text-gray-400 text-xs mt-1" id="reportes-chart-caption">Selecciona un ejercicio</p>
+</div>
+</div>
+<!-- Chart Visualization -->
+<div class="relative w-full h-[200px] mt-2 pl-10">
+<div class="absolute left-0 top-0 h-full w-10 flex flex-col justify-between text-[10px] font-medium text-gray-400 dark:text-gray-500">
+<span id="reportes-y-3">0 kg</span>
+<span id="reportes-y-2">0 kg</span>
+<span id="reportes-y-1">0 kg</span>
+<span id="reportes-y-0">0 kg</span>
+</div>
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 380 150" id="reportes-chart-svg">
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#30e87a" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#30e87a" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Grid Lines -->
+<line stroke="currentColor" stroke-dasharray="4 4" stroke-opacity="0.05" x1="0" x2="380" y1="0" y2="0"></line>
+<line stroke="currentColor" stroke-dasharray="4 4" stroke-opacity="0.05" x1="0" x2="380" y1="50" y2="50"></line>
+<line stroke="currentColor" stroke-dasharray="4 4" stroke-opacity="0.05" x1="0" x2="380" y1="100" y2="100"></line>
+<line stroke="currentColor" stroke-dasharray="4 4" stroke-opacity="0.05" x1="0" x2="380" y1="150" y2="150"></line>
+<!-- Path Area Fill -->
+<path d="" fill="url(#chartGradient)" id="reportes-chart-area"></path>
+<!-- Path Stroke -->
+<path d="" fill="none" stroke="#30e87a" stroke-linecap="round" stroke-width="3" vector-effect="non-scaling-stroke" id="reportes-chart-line"></path>
+<!-- Data Points -->
+<g id="reportes-chart-points"></g>
+</svg>
+<!-- X Axis Labels -->
+<div class="flex justify-between w-full mt-4 text-xs font-medium text-gray-400 dark:text-gray-500 font-body" id="reportes-x-axis">
+<span>Ene</span>
+<span>Feb</span>
+<span>Mar</span>
+<span>Abr</span>
+<span>May</span>
+<span>Jun</span>
+</div>
+</div>
+</div>
+<!-- Recent History Section -->
+<div>
+<div class="flex items-center justify-between pb-4 pt-2">
+<h3 class="text-lg font-bold leading-tight">Historial Reciente</h3>
+<a class="text-sm font-medium text-primary hover:text-primary/80" href="#">Ver todo</a>
+</div>
+<div class="flex flex-col gap-3" id="reportes-history-list">
+<!-- History Item 1 -->
+<div class="group flex items-center justify-between rounded-xl bg-white dark:bg-card-dark border border-gray-100 dark:border-white/5 p-4 transition-all active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-center justify-center rounded-lg bg-gray-100 dark:bg-white/5 h-12 w-12 text-center">
+<span class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400">OCT</span>
+<span class="text-lg font-bold leading-none text-slate-800 dark:text-white">12</span>
+</div>
+<div class="flex flex-col">
+<p class="text-base font-bold text-slate-800 dark:text-white">Squat Pesado</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-white/5 px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[12px] mr-1">timer</span> 45m
+                                    </span>
+<span class="text-xs text-gray-400">•</span>
+<span class="text-xs text-gray-500 dark:text-gray-400">RPE 8</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<div class="flex items-baseline gap-1">
+<span class="text-lg font-bold text-slate-800 dark:text-white">140</span>
+<span class="text-xs text-gray-500 font-medium">kg</span>
+</div>
+<p class="text-xs text-primary font-medium">Nuevo RM!</p>
+</div>
+</div>
+<!-- History Item 2 -->
+<div class="group flex items-center justify-between rounded-xl bg-white dark:bg-card-dark border border-gray-100 dark:border-white/5 p-4 transition-all active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-center justify-center rounded-lg bg-gray-100 dark:bg-white/5 h-12 w-12 text-center">
+<span class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400">OCT</span>
+<span class="text-lg font-bold leading-none text-slate-800 dark:text-white">08</span>
+</div>
+<div class="flex flex-col">
+<p class="text-base font-bold text-slate-800 dark:text-white">Volumen</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-xs text-gray-500 dark:text-gray-400">4 sets x 8 reps</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<div class="flex items-baseline gap-1">
+<span class="text-lg font-bold text-slate-800 dark:text-white">120</span>
+<span class="text-xs text-gray-500 font-medium">kg</span>
+</div>
+</div>
+</div>
+<!-- History Item 3 -->
+<div class="group flex items-center justify-between rounded-xl bg-white dark:bg-card-dark border border-gray-100 dark:border-white/5 p-4 transition-all active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-center justify-center rounded-lg bg-gray-100 dark:bg-white/5 h-12 w-12 text-center">
+<span class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400">OCT</span>
+<span class="text-lg font-bold leading-none text-slate-800 dark:text-white">05</span>
+</div>
+<div class="flex flex-col">
+<p class="text-base font-bold text-slate-800 dark:text-white">Técnica</p>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-xs text-gray-500 dark:text-gray-400">5 sets x 3 reps</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<div class="flex items-baseline gap-1">
+<span class="text-lg font-bold text-slate-800 dark:text-white">100</span>
+<span class="text-xs text-gray-500 font-medium">kg</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Spacer for FAB -->
+<div class="h-16"></div>
+</div>
+<!-- Floating Action Button -->
+<div class="fixed bottom-6 right-6 z-50">
+<button class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-background-dark shadow-xl shadow-primary/30 transition-transform active:scale-90 hover:bg-primary/90">
+<span class="material-symbols-outlined" style="font-size: 28px;">add</span>
+</button>
+</div>
+</div>
+<script src="vendor/xlsx.full.min.js"></script>
+<script src="reportes.js"></script>
+</body></html>

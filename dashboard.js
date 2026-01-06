@@ -1,4 +1,58 @@
 (function () {
+    var STORAGE_KEY = "workoutWorkbook";
+    var SELECTED_DAY_KEY = "workoutSelectedDay";
+    var TIMER_ONLY_KEY = "timerOnlyMode";
+
+    function arrayBufferToBase64(buffer) {
+      var bytes = new Uint8Array(buffer || []);
+      var chunkSize = 0x8000;
+      var binary = "";
+      for (var i = 0; i < bytes.length; i += chunkSize) {
+        var chunk = bytes.subarray(i, i + chunkSize);
+        binary += String.fromCharCode.apply(null, chunk);
+      }
+      return btoa(binary);
+    }
+
+    function base64ToArrayBuffer(base64) {
+      var binary = atob(base64);
+      var length = binary.length;
+      var bytes = new Uint8Array(length);
+      for (var i = 0; i < length; i += 1) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    function storeWorkbookBuffer(buffer) {
+      if (!buffer || !window.sessionStorage) {
+        return false;
+      }
+      try {
+        var base64 = arrayBufferToBase64(buffer);
+        sessionStorage.setItem(STORAGE_KEY, base64);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function loadWorkbookFromStorage() {
+      if (!window.sessionStorage) {
+        return null;
+      }
+      var base64 = sessionStorage.getItem(STORAGE_KEY);
+      if (!base64 || !window.XLSX) {
+        return null;
+      }
+      try {
+        var buffer = base64ToArrayBuffer(base64);
+        return XLSX.read(buffer, { type: "array" });
+      } catch (error) {
+        return null;
+      }
+    }
+
     function initWorkoutFileLoader() {
       var overlay = document.getElementById("file-loader-overlay");
       var fileInput = document.getElementById("workout-file-input");
@@ -14,11 +68,12 @@
       var timerStartButton = document.getElementById("timer-start-button");
       var timerSection = document.getElementById("timer-section");
       var timerCloseButton = document.getElementById("timer-close-button");
+      var emptyState = document.getElementById("workout-empty-state");
       var bodyElement = document.body;
       var defaultFileButtonText = "Cargar Archivo Excel";
       var loadedFileButtonText = "Rutina Cargada";
 
-      if (!overlay || !fileInput || !daySelect || !daySelectMain || !errorText || !exerciseList || !categoryTemplate || !exerciseTemplate) {
+      if (!daySelectMain || !exerciseList || !categoryTemplate || !exerciseTemplate) {
         return;
       }
 
@@ -27,6 +82,9 @@
       var repsColumns = [3, 4, 5, 6, 7, 8];
 
       function setOverlayVisible(isVisible) {
+        if (!overlay) {
+          return;
+        }
         overlay.style.display = isVisible ? "block" : "none";
       }
 
@@ -43,6 +101,9 @@
       }
 
       function showError(message) {
+        if (!errorText) {
+          return;
+        }
         errorText.textContent = message || "";
         errorText.hidden = !message;
       }
@@ -61,6 +122,9 @@
       }
 
       function resetDaySelect(select) {
+        if (!select) {
+          return;
+        }
         select.innerHTML = "";
         var placeholder = document.createElement("option");
         placeholder.value = "";
@@ -79,19 +143,34 @@
       function populateDaySelects(sheetNames) {
         resetDaySelects();
         sheetNames.forEach(function (sheetName) {
-          var option = document.createElement("option");
-          option.value = sheetName;
-          option.textContent = sheetName;
-          daySelect.appendChild(option);
+          if (daySelect) {
+            var option = document.createElement("option");
+            option.value = sheetName;
+            option.textContent = sheetName;
+            daySelect.appendChild(option);
+          }
 
-          var optionMain = document.createElement("option");
-          optionMain.value = sheetName;
-          optionMain.textContent = sheetName;
-          daySelectMain.appendChild(optionMain);
+          if (daySelectMain) {
+            var optionMain = document.createElement("option");
+            optionMain.value = sheetName;
+            optionMain.textContent = sheetName;
+            daySelectMain.appendChild(optionMain);
+          }
         });
         var shouldDisable = sheetNames.length === 0;
-        daySelect.disabled = shouldDisable;
-        daySelectMain.disabled = shouldDisable;
+        if (daySelect) {
+          daySelect.disabled = shouldDisable;
+        }
+        if (daySelectMain) {
+          daySelectMain.disabled = shouldDisable;
+        }
+      }
+
+      function setEmptyStateVisible(isVisible) {
+        if (!emptyState) {
+          return;
+        }
+        emptyState.hidden = !isVisible;
       }
 
       function buildRepItem(value) {
@@ -425,10 +504,10 @@
       }
 
       function syncDaySelects(selectedSheet) {
-        if (daySelect.value !== selectedSheet) {
+        if (daySelect && daySelect.value !== selectedSheet) {
           daySelect.value = selectedSheet;
         }
-        if (daySelectMain.value !== selectedSheet) {
+        if (daySelectMain && daySelectMain.value !== selectedSheet) {
           daySelectMain.value = selectedSheet;
         }
       }
@@ -456,63 +535,87 @@
           setTimerOnlyMode(false);
           setOverlayVisible(false);
           syncDaySelects(selectedSheet);
+          setEmptyStateVisible(false);
+          if (window.sessionStorage) {
+            sessionStorage.setItem(SELECTED_DAY_KEY, selectedSheet);
+          }
         }, 0);
       }
 
-      daySelect.addEventListener("change", function () {
-        handleDaySelection(daySelect.value);
-      });
+      if (daySelect) {
+        daySelect.addEventListener("change", function () {
+          handleDaySelection(daySelect.value);
+        });
+      }
 
-      daySelectMain.addEventListener("change", function () {
-        handleDaySelection(daySelectMain.value);
-      });
+      if (daySelectMain) {
+        daySelectMain.addEventListener("change", function () {
+          handleDaySelection(daySelectMain.value);
+        });
+      }
 
-      fileInput.addEventListener("change", function (event) {
-        var file = event.target.files && event.target.files[0];
-        if (!file) {
-          return;
+      function hydrateWorkbook(workbook) {
+        if (!workbook) {
+          return [];
+        }
+        currentWorkbook = workbook;
+        historyData = parseHistoryFromWorkbook();
+        var sheetNames = currentWorkbook.SheetNames || [];
+        if (!sheetNames.length) {
+          showError("El archivo no contiene hojas.");
+          return [];
         }
 
-        showError("");
-        setFileButtonText(defaultFileButtonText);
-        resetDaySelects();
-        currentWorkbook = null;
-        historyData = null;
-        setOverlayVisible(true);
+        var daySheetNames = sheetNames.filter(function (name) {
+          return normalizeHeader(name) !== "datos";
+        });
 
-        if (!/\.xlsx$/i.test(file.name)) {
-          showError("El archivo debe ser .xlsx.");
-          return;
+        populateDaySelects(daySheetNames);
+        if (daySheetNames.length) {
+          setFileButtonText(loadedFileButtonText);
         }
+        return daySheetNames;
+      }
 
-        var reader = new FileReader();
-        reader.onload = function () {
-          try {
-            currentWorkbook = XLSX.read(reader.result, { type: "array" });
-            historyData = parseHistoryFromWorkbook();
-            var sheetNames = currentWorkbook.SheetNames || [];
-            if (!sheetNames.length) {
-              showError("El archivo no contiene hojas.");
-              return;
-            }
-
-            var daySheetNames = sheetNames.filter(function (name) {
-              return normalizeHeader(name) !== "datos";
-            });
-
-            populateDaySelects(daySheetNames);
-            if (daySheetNames.length) {
-              setFileButtonText(loadedFileButtonText);
-            }
-            if (daySheetNames.length === 1) {
-              handleDaySelection(daySheetNames[0]);
-            }
-          } catch (error) {
-            showError("No se pudo leer el archivo. Verifica que sea .xlsx valido.");
+      if (fileInput) {
+        fileInput.addEventListener("change", function (event) {
+          var file = event.target.files && event.target.files[0];
+          if (!file) {
+            return;
           }
-        };
-        reader.readAsArrayBuffer(file);
-      });
+
+          showError("");
+          setFileButtonText(defaultFileButtonText);
+          resetDaySelects();
+          currentWorkbook = null;
+          historyData = null;
+          setOverlayVisible(true);
+          setEmptyStateVisible(false);
+          if (window.sessionStorage) {
+            sessionStorage.removeItem(SELECTED_DAY_KEY);
+          }
+
+          if (!/\.xlsx$/i.test(file.name)) {
+            showError("El archivo debe ser .xlsx.");
+            return;
+          }
+
+          var reader = new FileReader();
+          reader.onload = function () {
+            try {
+              var workbook = XLSX.read(reader.result, { type: "array" });
+              var daySheetNames = hydrateWorkbook(workbook);
+              storeWorkbookBuffer(reader.result);
+              if (daySheetNames.length === 1) {
+                handleDaySelection(daySheetNames[0]);
+              }
+            } catch (error) {
+              showError("No se pudo leer el archivo. Verifica que sea .xlsx valido.");
+            }
+          };
+          reader.readAsArrayBuffer(file);
+        });
+      }
 
       if (fileButton && fileInput) {
         fileButton.addEventListener("click", function () {
@@ -533,6 +636,10 @@
 
       if (openLoaderButton) {
         openLoaderButton.addEventListener("click", function () {
+          if (!overlay) {
+            window.location.href = "index.html";
+            return;
+          }
           showError("");
           setTimerOnlyMode(false);
           setOverlayVisible(true);
@@ -546,6 +653,28 @@
       }
 
       resetDaySelects();
+      var storedWorkbook = loadWorkbookFromStorage();
+      if (storedWorkbook) {
+        var storedDays = hydrateWorkbook(storedWorkbook);
+        var storedSelectedDay = window.sessionStorage ? sessionStorage.getItem(SELECTED_DAY_KEY) : "";
+        if (storedSelectedDay && storedDays.indexOf(storedSelectedDay) !== -1) {
+          handleDaySelection(storedSelectedDay);
+        } else if (storedDays.length === 1) {
+          handleDaySelection(storedDays[0]);
+        } else {
+          setEmptyStateVisible(false);
+        }
+      } else {
+        setEmptyStateVisible(true);
+      }
+
+      if (window.sessionStorage && sessionStorage.getItem(TIMER_ONLY_KEY)) {
+        sessionStorage.removeItem(TIMER_ONLY_KEY);
+        setTimerOnlyMode(true);
+        if (timerSection && timerSection.scrollIntoView) {
+          timerSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
     }
 
     function initCyclePhaseToggle() {
