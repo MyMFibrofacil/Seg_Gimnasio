@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Entrenamiento de combate</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">GIMNASIO + COMBATE</p>
+        <h1>Mi entrenamiento</h1>
+        <p id="connection-status" class="status status--muted">Preparando conexión…</p>
+      </div>
+      <button id="refresh-button" class="button button--secondary" type="button">Actualizar</button>
+    </header>
+
+    <nav class="mobile-nav" aria-label="Secciones de la aplicación">
+      <button class="mobile-nav__button mobile-nav__button--active" type="button" data-screen-target="training-screen">Entrenamiento</button>
+      <button class="mobile-nav__button" type="button" data-screen-target="daily-screen">Control diario</button>
+    </nav>
+
+    <section class="toolbar card" aria-label="Configuración de la vista">
+      <label>
+        Fecha
+        <input id="training-date" type="date" />
+      </label>
+      <label>
+        Inicio del plan
+        <input id="plan-start-date" type="date" />
+      </label>
+      <div class="toolbar__summary">
+        <span id="week-label">Semana —</span>
+        <strong id="day-label">—</strong>
+      </div>
+    </section>
+
+    <div id="app-message" class="message" role="status" hidden></div>
+
+    <section id="training-screen" class="screen screen--active" aria-labelledby="session-title">
+      <div class="layout-grid layout-grid--training">
+        <section class="card">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">PLAN DEL DÍA</p>
+              <h2 id="session-title">Cargando sesión…</h2>
+            </div>
+            <span id="session-duration" class="tag">—</span>
+          </div>
+          <p id="session-objective" class="muted">—</p>
+          <div id="exercise-list" class="exercise-list"></div>
+        </section>
+      </div>
+    </section>
+
+    <section id="daily-screen" class="screen" aria-labelledby="daily-title" hidden>
+      <div class="daily-stack">
+        <details class="card collapsible" open>
+          <summary class="collapsible__summary">
+            <span>
+              <span class="eyebrow">CONTROL DIARIO</span>
+              <strong id="daily-title">Peso y recuperación</strong>
+            </span>
+            <span class="collapsible__chevron">⌄</span>
+          </summary>
+          <div class="collapsible__content">
+            <p class="muted">Cargá estos datos una vez por día para ajustar el entrenamiento.</p>
+            <form id="daily-form" class="stack-form">
+              <label>
+                Peso corporal (kg)
+                <input id="body-weight" type="number" min="30" max="250" step="0.1" required />
+              </label>
+              <label>
+                Cintura (cm), opcional
+                <input id="waist" type="number" min="40" max="200" step="0.1" />
+              </label>
+              <label>
+                Horas de sueño
+                <input id="sleep-hours" type="number" min="0" max="24" step="0.5" />
+              </label>
+              <label>
+                Calidad del sueño (1-5)
+                <input id="sleep-quality" type="number" min="1" max="5" />
+              </label>
+              <label>
+                Energía (1-5)
+                <input id="energy" type="number" min="1" max="5" />
+              </label>
+              <label>
+                Fatiga (1-5)
+                <input id="fatigue" type="number" min="1" max="5" />
+              </label>
+              <label>
+                Dolor del día (0-10)
+                <input id="daily-pain" type="number" min="0" max="10" />
+              </label>
+              <label>
+                Notas del día
+                <textarea id="daily-notes" rows="4"></textarea>
+              </label>
+              <button class="button" type="submit">Guardar control diario</button>
+            </form>
+          </div>
+        </details>
+
+        <details class="card collapsible" open>
+          <summary class="collapsible__summary">
+            <span>
+              <span class="eyebrow">ÚLTIMOS DATOS</span>
+              <strong>Resumen</strong>
+            </span>
+            <span class="collapsible__chevron">⌄</span>
+          </summary>
+          <div class="collapsible__content">
+            <dl id="summary-list" class="summary-list">
+              <div><dt>Último peso</dt><dd>—</dd></div>
+              <div><dt>Variación</dt><dd>—</dd></div>
+              <div><dt>Sesiones cargadas</dt><dd>—</dd></div>
+            </dl>
+          </div>
+        </details>
+      </div>
+    </section>
+
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
