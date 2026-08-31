@@ -31,6 +31,6 @@ El backend utiliza las pestañas creadas en la planilla:
 - `Peso y medidas`
 - `Recuperación`
 
-La pestaña `Registro sesiones` usa estas columnas de carga: barra, disco por lado, peso total, series, repeticiones, RPE, técnica, dolor y observaciones.
+La pestaña `Registro sesiones` guarda una fila por serie con fecha, semana, día, ejercicio, barra, disco por lado, peso total, repeticiones, observaciones y número de serie. Las columnas históricas de RPE, técnica y dolor se conservan sin nuevos valores.
 
 No se guardan credenciales de Google en GitHub. La hoja sigue siendo el origen de datos y Apps Script controla las operaciones de lectura y carga.

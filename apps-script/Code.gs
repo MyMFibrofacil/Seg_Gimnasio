@@ -30,14 +30,30 @@ function buildBootstrap() {
       week: row[0], day: row[1], block: row[2], power: row[3], strength: row[4], accessories: row[5],
       reaction: row[6], duration: row[7], objective: row[8], adjustment: row[9]
     })),
-    recentSessions: readRows(SHEETS.sessions).slice(1).filter((row) => row[0]).slice(-200).map((row) => ({ date: row[0], exercise: row[3], rpe: row[8] })),
+    recentSessions: readRows(SHEETS.sessions).slice(1).filter((row) => row[0]).slice(-500).map((row) => ({
+      date: row[0], week: row[1], day: row[2], exercise: row[3], barWeight: row[4], discPerSide: row[5],
+      totalWeight: row[6], repetitions: row[7], setNumber: row[12] || ''
+    })),
     recentDaily: readRows(SHEETS.daily).slice(1).filter((row) => row[0]).slice(-100).map((row) => ({ date: row[0], weight: row[1], waist: row[2] }))
   };
 }
 
 function appendSession(data) {
-  requireFields(data, ['date', 'week', 'day', 'exercise', 'repetitions', 'rpe', 'technique', 'pain']);
-  getSheet(SHEETS.sessions).appendRow([data.date, data.week, data.day, data.exercise, data.barWeight || '', data.discPerSide || '', data.totalWeight || '', data.repetitions, data.rpe, data.technique, data.pain, data.notes || '']);
+  requireFields(data, ['date', 'week', 'day', 'exercise', 'repetitions']);
+  const series = Array.isArray(data.series) ? data.series : [{
+    barWeight: data.barWeight || '',
+    discPerSide: data.discPerSide || '',
+    totalWeight: data.totalWeight || '',
+    repetitions: data.repetitions
+  }];
+  const sheet = getSheet(SHEETS.sessions);
+  if (sheet.getRange(1, 13).getDisplayValue() !== 'Serie') sheet.getRange(1, 13).setValue('Serie');
+  const rows = series.map((set, index) => [
+    data.date, data.week, data.day, data.exercise,
+    set.barWeight ?? '', set.discPerSide ?? '', set.totalWeight ?? '', set.repetitions ?? '',
+    '', '', '', index === 0 ? data.notes || '' : '', index + 1
+  ]);
+  sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, 13).setValues(rows);
 }
 
 function appendDailyAndRecovery(data) {

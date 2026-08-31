@@ -63,6 +63,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 .prescription { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0 0; color: var(--muted); font-size: .82rem; }
 .prescription strong { color: var(--text); text-align: right; }
 .weight-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.set-list { display: grid; gap: 10px; }
+.set-row { display: grid; grid-template-columns: minmax(100px, .8fr) repeat(4, minmax(0, 1fr)); align-items: end; gap: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: #f9fafb; }
+.set-row > strong { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; }
+.set-row > strong small { color: var(--muted); font-size: .76rem; font-weight: 500; }
 .form-grid--exercise { margin-top: 0; }
 .exercise { padding: 14px; border: 1px solid var(--border); border-radius: 12px; }
 .exercise__title { margin: 0 0 4px; font-weight: 800; }
@@ -111,6 +115,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
   .prescription strong { text-align: left; }
   .weight-grid { grid-template-columns: 1fr 1fr; }
   .weight-grid label:last-child { grid-column: 1 / -1; }
+  .set-row { grid-template-columns: 1fr 1fr; }
+  .set-row > strong { grid-column: 1 / -1; }
   .collapsible__summary { min-height: 60px; padding: 14px 15px; }
   .collapsible__summary strong { font-size: 1.05rem; }
   .collapsible__content { padding: 0 15px 15px; }
