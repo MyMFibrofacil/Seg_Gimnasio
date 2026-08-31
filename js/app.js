@@ -101,13 +101,14 @@ function renderSetRows(exercise) {
   const setCount = exercise.setCount || 1;
   return Array.from({ length: setCount }, (_, index) => {
     const plannedReps = exercise.plannedReps?.[index] || exercise.plannedReps?.[0] || "";
+    const defaultReps = plannedReps.split("-")[0];
     return `
       <div class="set-row">
         <strong>Serie ${index + 1}<small>Plan: ${plannedReps} repeticiones</small></strong>
         <label>Barra (kg)<input data-set-field="barWeight" data-set-index="${index}" type="number" min="0" step="0.5" placeholder="20" /></label>
         <label>Discos por lado (kg)<input data-set-field="discPerSide" data-set-index="${index}" type="number" min="0" step="0.5" placeholder="0" /></label>
         <label>Total (kg)<input data-set-field="totalWeight" type="number" readonly tabindex="-1" placeholder="Calculado" /></label>
-        <label>Repeticiones reales<input data-set-field="repetitions" data-set-index="${index}" type="number" min="1" max="50" required /></label>
+        <label>Repeticiones reales<input data-set-field="repetitions" data-set-index="${index}" type="number" min="1" max="50" value="${defaultReps}" required /></label>
       </div>`;
   }).join("");
 }
